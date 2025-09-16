@@ -1,8 +1,10 @@
 import React, { useState, useRef } from "react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import MyDoc from "./MyDoc";
-
-const sections = [
+export type tocType = { [key: string]: number };
+export type sectionType = { title: string; content: string };
+export type registerSectionType = (title: string, pageNumber: number) => void;
+const sections: sectionType[] = [
   { title: "Introduction", content: "This is the intro text." },
   {
     title: "Methods",
@@ -15,11 +17,11 @@ const sections = [
   { title: "Conclusion", content: "Closing notes." },
 ];
 
-const App = () => {
-  const [tocMap, setTocMap] = useState({});
-  const tempMap = useRef({});
+const App: React.FC = () => {
+  const [tocMap, setTocMap] = useState<tocType>({});
+  const tempMap = useRef<tocType>({});
 
-  const registerSection = (title, pageNumber) => {
+  const registerSection: registerSectionType = (title: string, pageNumber: number): void => {
     if (!tempMap.current[title]) {
       tempMap.current[title] = pageNumber;
       setTocMap({ ...tempMap.current });
@@ -39,7 +41,7 @@ const App = () => {
         }
         fileName="report.pdf"
       >
-        {({ loading }) => (loading ? "Generating PDF..." : "Download PDF")}
+        {({ loading }) => (<span>{loading ? "Generating PDF..." : "Download PDF"}</span>)}
       </PDFDownloadLink>
     </div>
   );

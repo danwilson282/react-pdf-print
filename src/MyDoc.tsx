@@ -1,14 +1,20 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 import Section from "./Section";
-
+import type { registerSectionType, sectionType,tocType } from "./App";
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
   header: { fontSize: 18, marginBottom: 20, textAlign: "center" },
   tocItem: { marginBottom: 5 },
 });
 
-const MyDoc = ({ sections, tocMap, registerSection }) => {
+type Props = {
+  sections: sectionType[];
+  tocMap: tocType;
+  registerSection: registerSectionType;
+}
+
+const MyDoc: React.FC<Props> = ({ sections, tocMap, registerSection }) => {
   console.log(tocMap)
   return (
   <Document>

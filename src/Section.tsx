@@ -1,7 +1,13 @@
 import React from "react";
 import { Page, Text, View } from "@react-pdf/renderer";
+import type { registerSectionType } from "./App";
+type Props = {
+  title: string;
+  content: string;
+  registerSection: registerSectionType
+}
 
-const Section = ({ title, content, registerSection }) => (
+const Section: React.FC<Props> = ({ title, content, registerSection }) => (
   <Page style={{ padding: 40 }}>
     <Text
       render={({ pageNumber }) => {
