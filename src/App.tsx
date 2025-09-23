@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import MyDoc from "./MyDoc";
+import HtmlNodeExample from "./components/Example";
 export type tocType = { [key: string]: number };
 export type sectionType = { title: string; content: string };
 export type registerSectionType = (title: string, pageNumber: number) => void;
@@ -42,6 +43,13 @@ const App: React.FC = () => {
         fileName="report.pdf"
       >
         {({ loading }) => (<span>{loading ? "Generating PDF..." : "Download PDF"}</span>)}
+      </PDFDownloadLink>
+      <PDFDownloadLink
+      
+        document={<HtmlNodeExample/>}
+        fileName="html-example.pdf"
+        >
+      {({ loading }) => (<span>{loading ? "Generating PDF..." : "Download parsed PDF"}</span>)}
       </PDFDownloadLink>
     </div>
   );
