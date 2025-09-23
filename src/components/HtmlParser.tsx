@@ -2,61 +2,8 @@
 import React from "react";
 import { parseDocument } from "htmlparser2";
 import { View, Text, Image, StyleSheet } from "@react-pdf/renderer";
+import { nodeStyles } from "../styles/nodeStyle";
 
-const styles = StyleSheet.create({
-  paragraph: { marginBottom: 6 },
-  heading1: { fontSize: 18, marginBottom: 6 },
-  heading2: { fontSize: 16, marginBottom: 6 },
-  heading3: { fontSize: 14, marginBottom: 6 },
-  strong: { fontWeight: "bold" },
-  em: { fontStyle: "italic" },
-  underline: { textDecoration: "underline" },
-
-
-    table: {
-      width: "100%",
-      borderWidth: 1,
-      borderColor: "#000",
-      marginBottom: 8,
-    },
-    tableRow: {
-      flexDirection: "row",
-    },
-    tableCol: {
-      flex: 1, // each cell takes equal space
-      borderWidth: 1,
-      borderColor: "#000",
-      padding: 4,
-      justifyContent: "center",
-    },
-    tableCellText: {
-      fontSize: 10,
-    },
-//   table: {
-//     display: "table",
-//     width: "auto",
-//     borderStyle: "solid",
-//     borderWidth: 1,
-//     borderRightWidth: 0,
-//     borderBottomWidth: 0,
-//     marginBottom: 8,
-//   },
-//   tableRow: { flexDirection: "row" },
-//   tableCol: {
-//     borderStyle: "solid",
-//     borderWidth: 1,
-//     borderLeftWidth: 0,
-//     borderTopWidth: 0,
-//     padding: 4,
-//     justifyContent: "flex-start",
-//     alignItems: "center",
-//   },
-
-  inlineImage: { width: 20, height: 20, marginRight: 6 },
-
-  listItem: { flexDirection: "row", marginBottom: 2 },
-  listBullet: { width: 10 },
-});
 
 /** Map DOM node -> React-PDF nodes */
 function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
@@ -79,45 +26,45 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
     switch (tag) {
       case "p":
         return (
-          <View key={keyPrefix} style={styles.paragraph}>
+          <View key={keyPrefix} style={nodeStyles.paragraph}>
             {children}
           </View>
         );
       case "h1":
         return (
-          <Text key={keyPrefix} style={styles.heading1}>
+          <Text key={keyPrefix} style={nodeStyles.heading1}>
             {children}
           </Text>
         );
       case "h2":
         return (
-          <Text key={keyPrefix} style={styles.heading2}>
+          <Text key={keyPrefix} style={nodeStyles.heading2}>
             {children}
           </Text>
         );
       case "h3":
         return (
-          <Text key={keyPrefix} style={styles.heading3}>
+          <Text key={keyPrefix} style={nodeStyles.heading3}>
             {children}
           </Text>
         );
       case "strong":
       case "b":
         return (
-          <Text key={keyPrefix} style={styles.strong}>
+          <Text key={keyPrefix} style={nodeStyles.strong}>
             {children}
           </Text>
         );
       case "em":
       case "i":
         return (
-          <Text key={keyPrefix} style={styles.em}>
+          <Text key={keyPrefix} style={nodeStyles.em}>
             {children}
           </Text>
         );
       case "u":
         return (
-          <Text key={keyPrefix} style={styles.underline}>
+          <Text key={keyPrefix} style={nodeStyles.underline}>
             {children}
           </Text>
         );
@@ -130,7 +77,7 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
           <Image
             key={keyPrefix}
             src={src}
-            style={{ ...styles.inlineImage, width, height }}
+            style={{ ...nodeStyles.inlineImage, width, height }}
           />
         );
       }
@@ -147,8 +94,8 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
               .filter(Boolean);
             const bullet = isOrdered ? `${idx + 1}. ` : "• ";
             return (
-              <View key={`${keyPrefix}_li_${idx}`} style={styles.listItem}>
-                <Text style={styles.listBullet}>{bullet}</Text>
+              <View key={`${keyPrefix}_li_${idx}`} style={nodeStyles.listItem}>
+                <Text style={nodeStyles.listBullet}>{bullet}</Text>
                 <View style={{ flex: 1 }}>{liChildren}</View>
               </View>
             );
@@ -170,13 +117,13 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
         const colWidth = `${100 / Math.max(1, colCount)}%`;
 
         return (
-          <View key={keyPrefix} style={styles.table}>
+          <View key={keyPrefix} style={nodeStyles.table}>
             {rows.map((tr: any, rIdx: number) => {
               const cells = tr.children.filter(
                 (c: any) => c.type === "tag" && (c.name === "td" || c.name === "th")
               );
               return (
-                <View key={`${keyPrefix}_tr_${rIdx}`} style={styles.tableRow}>
+                <View key={`${keyPrefix}_tr_${rIdx}`} style={nodeStyles.tableRow}>
                   {cells.map((cell: any, cIdx: number) => {
                     const cellChildren = (cell.children || [])
                       .map((c: any, i: number) =>
@@ -186,7 +133,7 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
                     return (
                       <View
                         key={`${keyPrefix}_c${cIdx}`}
-                        style={{ ...styles.tableCol, width: colWidth }}
+                        style={{ ...nodeStyles.tableCol, width: colWidth }}
                       >
                         {cellChildren}
                       </View>

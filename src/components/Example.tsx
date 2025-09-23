@@ -2,7 +2,7 @@ import React from "react";
 import { Document, Page } from "@react-pdf/renderer";
 import { renderHtmlToPdfNodes } from "./HtmlParser";
 
-const html = `
+export const htmlExample = `
   <h1>Products</h1>
   <p>This is a paragraph.</p>
   <table>
@@ -18,7 +18,7 @@ export default function HtmlNodeExample() {
   return (
     <Document>
       <Page size="A4" style={{ padding: 20 }}>
-        {renderHtmlToPdfNodes(html)}
+        {renderHtmlToPdfNodes(htmlExample)}
       </Page>
     </Document>
   );

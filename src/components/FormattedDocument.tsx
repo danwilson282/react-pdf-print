@@ -1,12 +1,8 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 import Section from "./Section";
-import type { registerSectionType, sectionType,tocType } from "./App";
-const styles = StyleSheet.create({
-  page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
-  header: { fontSize: 18, marginBottom: 20, textAlign: "center" },
-  tocItem: { marginBottom: 5 },
-});
+import type { registerSectionType, sectionType,tocType } from "../App";
+import { globalStyles } from "../styles/globalStyle";
 
 type Props = {
   sections: sectionType[];
@@ -14,12 +10,11 @@ type Props = {
   registerSection: registerSectionType;
 }
 
-const MyDoc: React.FC<Props> = ({ sections, tocMap, registerSection }) => {
-  console.log(tocMap)
+const FormattedDocument: React.FC<Props> = ({ sections, tocMap, registerSection }) => {
   return (
   <Document>
     {/* COVER */}
-    <Page style={styles.page}>
+    <Page size="A4" style={globalStyles.page}>
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text style={{ fontSize: 32 }}>My Report Title</Text>
         <Text style={{ marginTop: 20, fontSize: 16 }}>Subtitle / Author</Text>
@@ -27,11 +22,11 @@ const MyDoc: React.FC<Props> = ({ sections, tocMap, registerSection }) => {
     </Page>
 
     {/* TOC */}
-    <Page style={styles.page}>
-      <Text style={styles.header}>Table of Contents</Text>
+    <Page size="A4" style={globalStyles.page}>
+      <Text style={globalStyles.header}>Table of Contents</Text>
       <View>
         {sections.map((s, i) => (
-          <Text key={i} style={styles.tocItem}>
+          <Text key={i} style={globalStyles.tocItem}>
             {i + 1}. {s.title}{" "}
             {tocMap[`${i+1}. ${s.title}`] ? `..... ${tocMap[`${i+1}. ${s.title}`]}` : ""}
           </Text>
@@ -51,4 +46,4 @@ const MyDoc: React.FC<Props> = ({ sections, tocMap, registerSection }) => {
   </Document>
 )};
 
-export default MyDoc;
+export default FormattedDocument;
