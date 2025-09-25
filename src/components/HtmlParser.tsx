@@ -102,6 +102,8 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
           });
         return <View key={keyPrefix}>{listItems}</View>;
       }
+      case "hr":
+        return  <View key={keyPrefix} style={nodeStyles.hr} />
       case "table": {
         const rows = (node.children || []).filter(
           (c: any) => c.type === "tag" && c.name === "tr"

@@ -1,18 +1,37 @@
 import React, { useState, useRef } from "react";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import { PDFDownloadLink, pdf } from "@react-pdf/renderer";
 import FormattedDocument from "./components/FormattedDocument";
-import { Page, Text, View } from "@react-pdf/renderer";
+import { Page, Text, View, Svg, Path, Rect, G } from "@react-pdf/renderer";
 import HtmlNodeExample, {htmlExample} from "./components/Example";
 import { renderHtmlToPdfNodes } from "./components/HtmlParser";
 import { parseSectionsFromReactNodes } from "./helpers/parseHtmlToSections";
+import OpenPdfInBrowserButton from "./components/OpenPdfInBrowser";
+import { MathJax } from "./components/MathJax";
+
 export type tocType = { [key: string]: number };
 export type sectionType = { title: string; content: string | React.ReactNode};
 export type registerSectionType = (title: string, pageNumber: number) => void;
+
+
+const mathML = `
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <mrow>
+      <mi>y</mi>
+      <mo>=</mo>
+      <mfrac>
+        <mn>1</mn>
+        <mi>x</mi>
+      </mfrac>
+    </mrow>
+  </math>
+`;
+
+
 const sections: sectionType[] = [
   { title: "Introduction", content: "This is the intro text." },
   {
     title: "Methods",
-    content: "I am a fish. ".repeat(500),
+    content: "I am a fish"
   },
   {
     title: "Pagignation Test",
@@ -26,6 +45,11 @@ const sections: sectionType[] = [
   {
     title: "Results",
     content: renderHtmlToPdfNodes(htmlExample),
+  },
+  {
+    title: "MathJax",
+    content: <MathJax content={mathML} />
+
   },
   { title: "Conclusion", content: "Closing notes." },
 ];
@@ -61,6 +85,7 @@ const App: React.FC = () => {
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>React PDF with TOC</h1>
+
       <PDFDownloadLink
         document={
           <FormattedDocument
@@ -80,6 +105,17 @@ const App: React.FC = () => {
         >
       {({ loading }) => (<span>{loading ? "Generating PDF..." : "Download parsed PDF"}</span>)}
       </PDFDownloadLink>
+      <OpenPdfInBrowserButton
+        document={
+          <FormattedDocument
+            sections={sections}
+            tocMap={tocMap}
+            registerSection={registerSection}
+          />
+        }
+        buttonText="Open PDF in Browser"
+      />
+
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 import Section from "./Section";
 import type { registerSectionType, sectionType,tocType } from "../App";
 import { globalStyles } from "../styles/globalStyle";
+import { nodeStyles } from "../styles/nodeStyle";
 
 type Props = {
   sections: sectionType[];
@@ -16,17 +17,17 @@ const FormattedDocument: React.FC<Props> = ({ sections, tocMap, registerSection 
     {/* COVER */}
     <Page size="A4" style={globalStyles.page}>
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ fontSize: 32 }}>My Report Title</Text>
-        <Text style={{ marginTop: 20, fontSize: 16 }}>Subtitle / Author</Text>
+        <Text style={nodeStyles.heading1}>My Report Title</Text>
+        <Text style={nodeStyles.heading2}>Subtitle / Author</Text>
       </View>
     </Page>
 
     {/* TOC */}
     <Page size="A4" style={globalStyles.page}>
-      <Text style={globalStyles.header}>Table of Contents</Text>
+      <Text style={nodeStyles.heading2}>Table of Contents</Text>
       <View>
         {sections.map((s, i) => (
-          <Text key={i} style={globalStyles.tocItem}>
+          <Text key={i} style={[nodeStyles.heading3,globalStyles.tocItem]}>
             {i + 1}. {s.title}{" "}
             {tocMap[`${i+1}. ${s.title}`] ? `..... ${tocMap[`${i+1}. ${s.title}`]}` : ""}
           </Text>

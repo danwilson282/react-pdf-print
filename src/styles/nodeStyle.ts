@@ -1,13 +1,31 @@
 import { StyleSheet } from "@react-pdf/renderer";
+
+//AQA Styles
+// fontSize 16
+// h1 4rem
+// h2 2rem
+// h3 1.4 rem
+// h4 1.2rem
+// --aqa-neutral: #2b2438;
+// --aqa-purple-primary: #371376;
+// --aqa-purple-secondary: #5f4291;
+// --aqa-purple-tertiary: #8771ac;
+// --aqa-red: #c8194b;
+// --aqa-red-60: #de7493;
+
 export const nodeStyles = StyleSheet.create({
   paragraph: { marginBottom: 6 },
-  heading1: { fontSize: 18, marginBottom: 6 },
-  heading2: { fontSize: 16, marginBottom: 6 },
-  heading3: { fontSize: 14, marginBottom: 6 },
+  heading1: { fontSize: "4rem", marginBottom: 6, color: '#371376' },
+  heading2: { fontSize: "2rem", marginBottom: 6, color: '#c8194b' },
+  heading3: { fontSize: "1.4rem", marginBottom: 6, color: '#c8194b'},
   strong: { fontWeight: "bold" },
   em: { fontStyle: "italic" },
   underline: { textDecoration: "underline" },
-
+  hr: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    borderBottomStyle: 'solid',
+    marginVertical: 10},
 
     table: {
       width: "100%",
