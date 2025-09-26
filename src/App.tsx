@@ -7,6 +7,8 @@ import { renderHtmlToPdfNodes } from "./components/HtmlParser";
 import { parseSectionsFromReactNodes } from "./helpers/parseHtmlToSections";
 import OpenPdfInBrowserButton from "./components/OpenPdfInBrowser";
 import { MathJax } from "./components/MathJax";
+import { intro } from "./AQA/Maths/Intro";
+import { specAtAGlance } from "./AQA/Maths/specAtAGlance";
 
 export type tocType = { [key: string]: number };
 export type sectionType = { title: string; content: string | React.ReactNode};
@@ -28,10 +30,13 @@ const mathML = `
 
 
 const sections: sectionType[] = [
-  { title: "Introduction", content: "This is the intro text." },
   {
-    title: "Methods",
-    content: "I am a fish"
+    title: "Introduction",
+    content: renderHtmlToPdfNodes(intro),
+  },
+  {
+    title: "Specification at a glance",
+    content: renderHtmlToPdfNodes(specAtAGlance),
   },
   {
     title: "Pagignation Test",
@@ -78,7 +83,6 @@ const App: React.FC = () => {
   );
   
   const sectionsTest = parseSectionsFromReactNodes(content);
-  console.log(sectionsTest);
 
 
 

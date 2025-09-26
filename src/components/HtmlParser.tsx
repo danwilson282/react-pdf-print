@@ -1,7 +1,7 @@
 // htmlToPdf.tsx
 import React from "react";
 import { parseDocument } from "htmlparser2";
-import { View, Text, Image, StyleSheet } from "@react-pdf/renderer";
+import { View, Text, Image, Link } from "@react-pdf/renderer";
 import { nodeStyles } from "../styles/nodeStyle";
 
 
@@ -24,12 +24,13 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
       .filter(Boolean) as React.ReactNode[];
 
     switch (tag) {
-      case "p":
+      case "a":
+        const src = node.attribs.href || "";
         return (
-          <View key={keyPrefix} style={nodeStyles.paragraph}>
+          <Link src={src} style={nodeStyles.link}>
             {children}
-          </View>
-        );
+          </Link>
+        )
       case "h1":
         return (
           <Text key={keyPrefix} style={nodeStyles.heading1}>
@@ -48,6 +49,12 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
             {children}
           </Text>
         );
+      case "h4":
+          return (
+            <Text key={keyPrefix} style={nodeStyles.heading4}>
+              {children}
+            </Text>
+          );
       case "strong":
       case "b":
         return (
@@ -104,51 +111,95 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
       }
       case "hr":
         return  <View key={keyPrefix} style={nodeStyles.hr} />
-      case "table": {
-        const rows = (node.children || []).filter(
-          (c: any) => c.type === "tag" && c.name === "tr"
-        );
-        const colCount = Math.max(
-          ...rows.map(
-            (r: any) =>
-              r.children.filter(
-                (c: any) => c.type === "tag" && (c.name === "td" || c.name === "th")
-              ).length
-          )
-        );
-        const colWidth = `${100 / Math.max(1, colCount)}%`;
-
-        return (
-          <View key={keyPrefix} style={nodeStyles.table}>
-            {rows.map((tr: any, rIdx: number) => {
-              const cells = tr.children.filter(
-                (c: any) => c.type === "tag" && (c.name === "td" || c.name === "th")
-              );
-              return (
-                <View key={`${keyPrefix}_tr_${rIdx}`} style={nodeStyles.tableRow}>
-                  {cells.map((cell: any, cIdx: number) => {
-                    const cellChildren = (cell.children || [])
-                      .map((c: any, i: number) =>
-                        renderNode(c, `${keyPrefix}_tr${rIdx}_c${cIdx}_${i}`)
-                      )
-                      .filter(Boolean);
-                    return (
-                      <View
-                        key={`${keyPrefix}_c${cIdx}`}
-                        style={{ ...nodeStyles.tableCol, width: colWidth }}
-                      >
-                        {cellChildren}
-                      </View>
-                    );
-                  })}
-                </View>
-              );
-            })}
-          </View>
-        );
+        case "table": {
+          const extractRows = (nodes: any[]): any[] => {
+            return nodes.flatMap((node) => {
+              if (node.type === "tag") {
+                if (node.name === "tr") {
+                  return [node];
+                }
+                if (["thead", "tbody", "tfoot"].includes(node.name)) {
+                  return extractRows(node.children || []);
+                }
+              }
+              return [];
+            });
+          };
+        
+          const rows = extractRows(node.children || []);
+        
+          const colCount = Math.max(
+            ...rows.map(
+              (r: any) =>
+                (r.children || []).filter(
+                  (c: any) => c.type === "tag" && (c.name === "td" || c.name === "th")
+                ).length
+            )
+          );
+        
+          const colWidth = `${100 / Math.max(1, colCount)}%`;
+        
+          return (
+            <View key={keyPrefix} style={nodeStyles.table}>
+              {rows.map((tr: any, rIdx: number) => {
+                const cells = (tr.children || []).filter(
+                  (c: any) => c.type === "tag" && (c.name === "td" || c.name === "th")
+                );
+                return (
+                  <View key={`${keyPrefix}_tr_${rIdx}`} style={nodeStyles.tableRow}>
+                    {cells.map((cell: any, cIdx: number) => {
+                      const cellChildren = (cell.children || [])
+                        .map((c: any, i: number) =>
+                          renderNode(c, `${keyPrefix}_tr${rIdx}_c${cIdx}_${i}`)
+                        )
+                        .filter(Boolean);
+                      return (
+                        <View
+                          key={`${keyPrefix}_c${cIdx}`}
+                          style={{ ...nodeStyles.tableCol, width: colWidth }}
+                        >
+                          {cellChildren}
+                        </View>
+                      );
+                    })}
+                  </View>
+                );
+              })}
+            </View>
+          );
+        }
+        
+      case "p":
+      case "div": {
+        const isInline = node.children.every((c: any) => {
+          return (
+            c.type === "text" ||
+            (c.type === "tag" && ["a", "span", "strong", "b", "em", "i", "u"].includes(c.name))
+          );
+        });
+      
+        if (isInline) {
+          console.log('here')
+          // render inline div as Text
+          const inlineChildren = node.children
+            .map((c: any, i: number) => renderNode(c, `${keyPrefix}_inline_${i}`))
+            .filter(Boolean);
+          return (
+            <Text key={keyPrefix} style={nodeStyles.paragraph}>
+              {inlineChildren}
+            </Text>
+          );
+        } else {
+          // render block div as View
+          return (
+            <View key={keyPrefix} style={nodeStyles.paragraph}>
+              {children}
+            </View>
+          );
+        }
       }
+      
       case "span":
-      case "div":
       default:
         return <Text key={keyPrefix}>{children}</Text>;
     }

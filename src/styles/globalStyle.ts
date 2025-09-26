@@ -1,6 +1,22 @@
 import { StyleSheet, Font } from "@react-pdf/renderer";
 
-Font.register({ family: 'Open Sans', src: 'https://fonts.gstatic.com/s/opensans/v13/cJZKeOuBrn4kERxqtaUH3aCWcynf_cDxXwCLxiixG1c.ttf' });
+// Font.register({ 
+//   family: 'Open Sans', 
+//   src: "https://fonts.gstatic.com/s/opensans/v13/cJZKeOuBrn4kERxqtaUH3aCWcynf_cDxXwCLxiixG1c.ttf"
+//   // fonts: [
+//   //   { src: "https://fonts.gstatic.com/s/opensans/v13/cJZKeOuBrn4kERxqtaUH3aCWcynf_cDxXwCLxiixG1c.ttf", fontWeight: "normal" },
+//   //   { src: "https://fonts.gstatic.com/s/opensans/v13/cJZKeOuBrn4kERxqtaUH3aCWcynf_cDxXwCLxiixG1c.ttf", fontWeight: "bold" },
+//   // ],
+// });
+
+Font.register({
+  family: 'Open Sans',
+  fonts: [
+  { src: 'https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-regular.ttf' },
+  { src: 'https://cdn.jsdelivr.net/npm/open-sans-all@0.1.3/fonts/open-sans-600.ttf', fontWeight: 600 }
+  ]
+  });
+
 
 //AQA Styles
 // fontSize 16
@@ -18,7 +34,7 @@ Font.register({ family: 'Open Sans', src: 'https://fonts.gstatic.com/s/opensans/
 
 
 export const globalStyles = StyleSheet.create({
-  page: { padding: 40, fontSize: 12, fontFamily: "Open Sans" },
+  page: { padding: 40, fontSize: 10, fontFamily: "Open Sans" },
   heading: { fontSize: 18, marginBottom: 20, textAlign: "center" },
   tocItem: { marginBottom: 5 },
   header: {

@@ -2,6 +2,7 @@ import React from "react";
 import { Page, Text, View } from "@react-pdf/renderer";
 import type { registerSectionType } from "../App";
 import { globalStyles } from "../styles/globalStyle";
+import { nodeStyles } from "../styles/nodeStyle";
 type Props = {
   title: string;
   content: string | React.ReactNode;
@@ -16,7 +17,7 @@ const Section: React.FC<Props> = ({ title, content, registerSection }) => (
           registerSection(title, pageNumber);
           return `${title}`;
         }}
-        style={{ fontSize: 16, marginBottom: 10 }}
+        style={nodeStyles.heading2}
       />
 
       {typeof content === "string" ? <Text>{content}</Text> : content}

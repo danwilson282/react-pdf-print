@@ -14,12 +14,14 @@ import { StyleSheet } from "@react-pdf/renderer";
 // --aqa-red-60: #de7493;
 
 export const nodeStyles = StyleSheet.create({
-  paragraph: { marginBottom: 6 },
-  heading1: { fontSize: "4rem", marginBottom: 6, color: '#371376' },
-  heading2: { fontSize: "2rem", marginBottom: 6, color: '#c8194b' },
-  heading3: { fontSize: "1.4rem", marginBottom: 6, color: '#c8194b'},
-  strong: { fontWeight: "bold" },
-  em: { fontStyle: "italic" },
+  paragraph: { marginBottom: 8 },
+  heading1: { fontSize: "4rem", marginBottom: 6, color: '#c8194b' },
+  heading2: { fontSize: "2rem", marginBottom: 16, color: '#ffffff', backgroundColor:  '#371376', paddingVertical: 10, paddingHorizontal: 6  },
+  heading3: { fontSize: "1.4rem", marginBottom: 10, color: '#c8194b'},
+  heading4: { fontSize: "1.2rem", marginBottom: 8, color: '#c8194b'},
+  link: { color: 'blue', textDecoration: 'underline' },
+  strong: { fontWeight: 600 },
+  em: { },
   underline: { textDecoration: "underline" },
   hr: {
     borderBottomWidth: 1,
@@ -38,7 +40,7 @@ export const nodeStyles = StyleSheet.create({
     },
     tableCol: {
       flex: 1, // each cell takes equal space
-      borderWidth: 1,
+      borderWidth: 0.5,
       borderColor: "#000",
       padding: 4,
       justifyContent: "center",
