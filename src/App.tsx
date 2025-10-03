@@ -70,7 +70,7 @@ const App: React.FC = () => {
       setTocMap({ ...tempMap.current });
     }
   };
-  // console.log("TOC Map:", tocMap);
+  console.log("TOC Map:", tocMap);
 
 
   const content = (
@@ -89,7 +89,6 @@ const App: React.FC = () => {
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>React PDF with TOC</h1>
-
       <PDFDownloadLink
         document={
           <FormattedDocument
@@ -102,19 +101,14 @@ const App: React.FC = () => {
       >
         {({ loading }) => (<span>{loading ? "Generating PDF..." : "Download PDF"}</span>)}
       </PDFDownloadLink>
-      <PDFDownloadLink
-      
-        document={<HtmlNodeExample/>}
-        fileName="html-example.pdf"
-        >
-      {({ loading }) => (<span>{loading ? "Generating PDF..." : "Download parsed PDF"}</span>)}
-      </PDFDownloadLink>
       <OpenPdfInBrowserButton
         document={
           <FormattedDocument
             sections={sections}
             tocMap={tocMap}
             registerSection={registerSection}
+            headerText={"GCSE Mathematics (8300). For exams in May/June 2017 onwards. Version 1.0"}
+            footerText={"Visit aqa.org.uk/8300 for the most up-to-date specifications, resources, support and administration"}
           />
         }
         buttonText="Open PDF in Browser"

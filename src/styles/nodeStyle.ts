@@ -16,7 +16,7 @@ import { StyleSheet } from "@react-pdf/renderer";
 export const nodeStyles = StyleSheet.create({
   paragraph: { marginBottom: 8 },
   heading1: { fontSize: "4rem", marginBottom: 6, color: '#c8194b' },
-  heading2: { fontSize: "2rem", marginBottom: 16, color: '#ffffff', backgroundColor:  '#371376', paddingVertical: 10, paddingHorizontal: 6  },
+  heading2: { fontSize: "2rem", marginBottom: 16, color: '#ffffff'  },
   heading3: { fontSize: "1.4rem", marginBottom: 10, color: '#c8194b'},
   heading4: { fontSize: "1.2rem", marginBottom: 8, color: '#c8194b'},
   link: { color: 'blue', textDecoration: 'underline' },
@@ -44,6 +44,13 @@ export const nodeStyles = StyleSheet.create({
       borderColor: "#000",
       padding: 4,
       justifyContent: "center",
+    },
+    tableDataCol: {
+
+    },
+    tableHeaderCol: {
+      backgroundColor: '#c8194b',
+      color: '#ffffff',
     },
     tableCellText: {
       fontSize: 10,

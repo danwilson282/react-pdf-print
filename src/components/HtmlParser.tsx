@@ -138,9 +138,9 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
           );
         
           const colWidth = `${100 / Math.max(1, colCount)}%`;
-        
+          
           return (
-            <View key={keyPrefix} style={nodeStyles.table}>
+            <View key={keyPrefix} style={nodeStyles.table} wrap={false}>
               {rows.map((tr: any, rIdx: number) => {
                 const cells = (tr.children || []).filter(
                   (c: any) => c.type === "tag" && (c.name === "td" || c.name === "th")
@@ -153,10 +153,13 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
                           renderNode(c, `${keyPrefix}_tr${rIdx}_c${cIdx}_${i}`)
                         )
                         .filter(Boolean);
+                        const isHeader = cell.name === "th";
                       return (
                         <View
                           key={`${keyPrefix}_c${cIdx}`}
-                          style={{ ...nodeStyles.tableCol, width: colWidth }}
+                          style={{ ...nodeStyles.tableCol,
+                            ...(isHeader ? nodeStyles.tableHeaderCol : nodeStyles.tableDataCol),
+                             width: colWidth }}
                         >
                           {cellChildren}
                         </View>
@@ -179,7 +182,6 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
         });
       
         if (isInline) {
-          console.log('here')
           // render inline div as Text
           const inlineChildren = node.children
             .map((c: any, i: number) => renderNode(c, `${keyPrefix}_inline_${i}`))

@@ -9,9 +9,11 @@ type Props = {
   sections: sectionType[];
   tocMap: tocType;
   registerSection: registerSectionType;
+  headerText?: string;
+  footerText?: string;
 }
 
-const FormattedDocument: React.FC<Props> = ({ sections, tocMap, registerSection }) => {
+const FormattedDocument: React.FC<Props> = ({ sections, tocMap, registerSection, headerText, footerText }) => {
   return (
   <Document>
     {/* COVER */}
@@ -24,7 +26,7 @@ const FormattedDocument: React.FC<Props> = ({ sections, tocMap, registerSection 
 
     {/* TOC */}
     <Page size="A4" style={globalStyles.page}>
-      <Text style={nodeStyles.heading2}>Table of Contents</Text>
+      <Text style={globalStyles.heading}>Table of Contents</Text>
       <View>
         {sections.map((s, i) => (
           <Text key={i} style={[nodeStyles.heading3,globalStyles.tocItem]}>
@@ -42,6 +44,8 @@ const FormattedDocument: React.FC<Props> = ({ sections, tocMap, registerSection 
         title={`${i + 1}. ${s.title}`}
         content={s.content}
         registerSection={registerSection}
+        headerText={headerText}
+        footerText={footerText}
       />
     ))}
   </Document>

@@ -28,7 +28,6 @@ export const MathJax: React.FC<Props> = ({ content }) => {
   // memoize the SVG conversion, only runs when content changes
   const { viewBox, primitives } = useMemo(() => {
     const svgString = renderMathMLToSVG(content);
-    console.log(svgString)
     return parseSvgToPrimitives(svgString);
   }, [content]);
   

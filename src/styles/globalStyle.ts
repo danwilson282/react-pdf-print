@@ -37,22 +37,56 @@ export const globalStyles = StyleSheet.create({
   page: { padding: 40, fontSize: 10, fontFamily: "Open Sans" },
   heading: { fontSize: 18, marginBottom: 20, textAlign: "center" },
   tocItem: { marginBottom: 5 },
+  pageTitle: {
+      fontSize: "2rem", 
+      color: '#ffffff'  ,
+  },
+  headingContainer: {
+    backgroundColor:  '#371376',
+    paddingVertical: 10,
+    paddingHorizontal: 6
+  },
+  headingUnderline: {
+    width: '100%',
+    height: 1,
+    backgroundColor: '#c8194b',
+  },
   header: {
     position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
+    top: 20,
+    left: 40,
+    right: 40,
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: '0.8rem',
     color: 'grey',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  headerHr: {
+    position: 'absolute',
+    top: 35, // position of the horizontal line
+    left: 40,
+    right: 40,
+    height: 1,
+    backgroundColor: '#000',
   },
   footer: {
     position: 'absolute',
     bottom: 20,
-    left: 0,
-    right: 0,
+    left: 40,
+    right: 40,
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: '0.8rem',
     color: 'grey',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
+  footerHr: {
+    position: 'absolute',
+    bottom: 35, // position of the horizontal line
+    left: 40,
+    right: 40,
+    height: 1,
+    backgroundColor: '#000',
+  }
 });
