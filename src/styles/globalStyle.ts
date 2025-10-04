@@ -35,8 +35,23 @@ Font.register({
 
 export const globalStyles = StyleSheet.create({
   page: { padding: 40, fontSize: 10, fontFamily: "Open Sans" },
-  heading: { fontSize: 18, marginBottom: 20, textAlign: "center" },
-  tocItem: { marginBottom: 5 },
+  heading: { fontSize: 18, marginBottom: 20, textAlign: "left" },
+  tocItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5
+  },
+  tocSectionA: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: '#c8194b',
+  },
+  tocSectionB: {
+    marginLeft: 20,
+  },
+  tocSectionC: {
+    marginLeft: 40,
+  },
   pageTitle: {
       fontSize: "2rem", 
       color: '#ffffff'  ,

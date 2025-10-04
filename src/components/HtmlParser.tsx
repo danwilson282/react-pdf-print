@@ -3,12 +3,39 @@ import React from "react";
 import { parseDocument } from "htmlparser2";
 import { View, Text, Image, Link } from "@react-pdf/renderer";
 import { nodeStyles } from "../styles/nodeStyle";
+import { registerSectionType } from "../App";
 
+export function extractTextFromReactNode(node: React.ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") {
+    return node.toString();
+  }
+
+  if (Array.isArray(node)) {
+    return node.map(extractTextFromReactNode).join("");
+  }
+
+  if (React.isValidElement(node)) {
+    // ✅ Cast as ReactElement<any> to access props safely
+    const element = node as React.ReactElement<any>;
+    return extractTextFromReactNode(element.props.children);
+  }
+
+  return "";
+}
+
+function stringToNumberHash(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0; // Convert to 32-bit integer
+  }
+  return Math.abs(hash);
+}
 
 /** Map DOM node -> React-PDF nodes */
-function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
+function renderNode(node: any, keyPrefix = "", registerSection: registerSectionType): React.ReactNode | null {
   if (!node) return null;
-
   // Handle text nodes
   if (node.type === "text") {
     const txt = (node.data || "").replace(/\s+/g, " ");
@@ -20,10 +47,11 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
   if (node.type === "tag") {
     const tag = node.name.toLowerCase();
     const children = (node.children || [])
-      .map((c: any, i: number) => renderNode(c, `${keyPrefix}_${tag}_${i}`))
+      .map((c: any, i: number) => renderNode(c, `${keyPrefix}_${tag}_${i}`,registerSection))
       .filter(Boolean) as React.ReactNode[];
-
+    let textContent: string, subId: string | undefined, uniqueId: string;
     switch (tag) {
+      
       case "a":
         const src = node.attribs.href || "";
         return (
@@ -44,17 +72,35 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
           </Text>
         );
       case "h3":
+        textContent = extractTextFromReactNode(children);
+        subId = keyPrefix.split('_').pop()
+        uniqueId = `${keyPrefix}_h3`;
         return (
-          <Text key={keyPrefix} style={nodeStyles.heading3}>
-            {children}
-          </Text>
+          <Text
+          key={keyPrefix}
+          render={({ pageNumber }) => {
+            registerSection(textContent, pageNumber, stringToNumberHash(uniqueId), `${pageNumber}_${subId}_b`);
+            return children;
+          }}
+          style={nodeStyles.heading3}
+        />
+
         );
       case "h4":
-          return (
-            <Text key={keyPrefix} style={nodeStyles.heading4}>
-              {children}
-            </Text>
-          );
+        textContent = extractTextFromReactNode(children);
+        subId = keyPrefix.split('_').pop()
+        uniqueId = `${keyPrefix}_h4`;
+        return (
+          <Text
+          key={keyPrefix}
+          render={({ pageNumber }) => {
+            // registerSection(textContent, pageNumber, stringToNumberHash(uniqueId), `${pageNumber}_${subId}_c`);
+            return children;
+          }}
+          style={nodeStyles.heading4}
+        />
+
+        );
       case "strong":
       case "b":
         return (
@@ -96,7 +142,7 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
           .map((li: any, idx: number) => {
             const liChildren = (li.children || [])
               .map((c: any, i: number) =>
-                renderNode(c, `${keyPrefix}_li_${idx}_${i}`)
+                renderNode(c, `${keyPrefix}_li_${idx}_${i}`,registerSection)
               )
               .filter(Boolean);
             const bullet = isOrdered ? `${idx + 1}. ` : "• ";
@@ -150,7 +196,7 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
                     {cells.map((cell: any, cIdx: number) => {
                       const cellChildren = (cell.children || [])
                         .map((c: any, i: number) =>
-                          renderNode(c, `${keyPrefix}_tr${rIdx}_c${cIdx}_${i}`)
+                          renderNode(c, `${keyPrefix}_tr${rIdx}_c${cIdx}_${i}`,registerSection)
                         )
                         .filter(Boolean);
                         const isHeader = cell.name === "th";
@@ -184,7 +230,7 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
         if (isInline) {
           // render inline div as Text
           const inlineChildren = node.children
-            .map((c: any, i: number) => renderNode(c, `${keyPrefix}_inline_${i}`))
+            .map((c: any, i: number) => renderNode(c, `${keyPrefix}_inline_${i}`,registerSection))
             .filter(Boolean);
           return (
             <Text key={keyPrefix} style={nodeStyles.paragraph}>
@@ -210,9 +256,9 @@ function renderNode(node: any, keyPrefix = ""): React.ReactNode | null {
   return null;
 }
 
-export function renderHtmlToPdfNodes(html: string): React.ReactNode[] {
+export function renderHtmlToPdfNodes(html: string, registerSection: registerSectionType): React.ReactNode[] {
   const doc = parseDocument(html, { decodeEntities: true });
   return (doc.children || [])
-    .map((n: any, i: number) => renderNode(n, `root_${i}`))
+    .map((n: any, i: number) => renderNode(n, `root_${i}`,registerSection))
     .filter(Boolean) as React.ReactNode[];
 }

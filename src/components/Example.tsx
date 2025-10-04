@@ -16,14 +16,14 @@ export const htmlExample = `
 `;
 
 
-export default function HtmlNodeExample() {
-  return (
-    <Document>
-      <Page size="A4" style={{ padding: 20 }}>
-        {renderHtmlToPdfNodes(htmlExample)}
-      </Page>
-      <Page>
-      </Page>
-    </Document>
-  );
-}
+// export default function HtmlNodeExample() {
+//   return (
+//     <Document>
+//       <Page size="A4" style={{ padding: 20 }}>
+//         {renderHtmlToPdfNodes(htmlExample)}
+//       </Page>
+//       <Page>
+//       </Page>
+//     </Document>
+//   );
+// }

@@ -9,9 +9,10 @@ type Props = {
   registerSection: registerSectionType
   headerText?: string;
   footerText?: string;
+  id: number;
 }
 
-const Section: React.FC<Props> = ({ title, content, registerSection, headerText, footerText }) => (
+const Section: React.FC<Props> = ({ title, content, registerSection, headerText, footerText, id }) => (
   <Page size="A4" style={globalStyles.page}>
         
     <View style={globalStyles.header} fixed>
@@ -38,7 +39,7 @@ const Section: React.FC<Props> = ({ title, content, registerSection, headerText,
         <View style={globalStyles.headingContainer}>
           <Text
             render={({ pageNumber }) => {
-              registerSection(title, pageNumber);
+              registerSection(title, pageNumber, id, `${pageNumber}_${id}_a`);
               return `${title}`;
             }}
             style={globalStyles.pageTitle}
