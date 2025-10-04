@@ -42,16 +42,21 @@ const App: React.FC = () => {
   const tempMap = useRef<tocType>([]);
   
   const registerSection: registerSectionType = (title, pageNumber, id, type) => {
-    // type is pageNumber_subOrSection_root_0_div_1_div_9_h3
-    // Avoid duplicate entries by checking ID
-    if (!tempMap.current.some(entry => entry.id === id)) {
-      const newEntry = { id, title, pageNumber , type };
-      tempMap.current.push(newEntry);
+    const existingIndex = tempMap.current.findIndex(entry => entry.id === id);
   
-      // Optional: sort by ID or page number
-      const sortedToc = [...tempMap.current].sort((a, b) => a.id - b.id);
-      setTocMap(sortedToc);
+    const newEntry = { id, title, pageNumber, type };
+  
+    if (existingIndex !== -1) {
+      // ✅ Overwrite existing entry
+      tempMap.current[existingIndex] = newEntry;
+    } else {
+      // ✅ Add new entry
+      tempMap.current.push(newEntry);
     }
+  
+    // Sort updated TOC and update state
+    const sortedToc = [...tempMap.current].sort((a, b) => a.id - b.id);
+    setTocMap(sortedToc);
   };
   const cover: FrontCoverProps = {
     coverImage: backgroundImage,

@@ -19,6 +19,7 @@ const Heading: React.FC<Props> = ({ children, level, registerSection, id, style,
   return (
     <Text
       render={({ pageNumber }) => {
+        console.log(pageNumber, id)
         registerSection(textContent, pageNumber, id, `${pageNumber}_${subId}_${level}`);
         return children;
       }}
