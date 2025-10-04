@@ -4,6 +4,7 @@ import { parseDocument } from "htmlparser2";
 import { View, Text, Image, Link } from "@react-pdf/renderer";
 import { nodeStyles } from "../styles/nodeStyle";
 import { registerSectionType } from "../App";
+import Heading from "./Heading";
 
 export function extractTextFromReactNode(node: React.ReactNode): string {
   if (typeof node === "string" || typeof node === "number") {
@@ -49,7 +50,7 @@ function renderNode(node: any, keyPrefix = "", registerSection: registerSectionT
     const children = (node.children || [])
       .map((c: any, i: number) => renderNode(c, `${keyPrefix}_${tag}_${i}`,registerSection))
       .filter(Boolean) as React.ReactNode[];
-    let textContent: string, subId: string | undefined, uniqueId: string;
+    let subId: string | undefined, uniqueId: string;
     switch (tag) {
       
       case "a":
@@ -72,22 +73,22 @@ function renderNode(node: any, keyPrefix = "", registerSection: registerSectionT
           </Text>
         );
       case "h3":
-        textContent = extractTextFromReactNode(children);
         subId = keyPrefix.split('_').pop()
         uniqueId = `${keyPrefix}_h3`;
         return (
-          <Text
+          <Heading
           key={keyPrefix}
-          render={({ pageNumber }) => {
-            registerSection(textContent, pageNumber, stringToNumberHash(uniqueId), `${pageNumber}_${subId}_b`);
-            return children;
-          }}
+          level={"b"}
+          registerSection={registerSection}
+          id={stringToNumberHash(uniqueId)}
           style={nodeStyles.heading3}
-        />
+          subId={subId}
+        >
+          {children}
+        </Heading>
 
         );
       case "h4":
-        textContent = extractTextFromReactNode(children);
         subId = keyPrefix.split('_').pop()
         uniqueId = `${keyPrefix}_h4`;
         return (

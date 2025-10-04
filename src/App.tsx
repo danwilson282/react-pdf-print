@@ -71,26 +71,26 @@ const App: React.FC = () => {
       title: "Introduction",
       content: renderHtmlToPdfNodes(intro,registerSection),
     },
-    {
-      title: "Specification at a glance",
-      content: renderHtmlToPdfNodes(specAtAGlance,registerSection),
-    },
-    {
-      title: "Subject content",
-      content: renderHtmlToPdfNodes(subjectContent,registerSection),
-    },
-    {
-      title: "Scheme of assessment",
-      content: renderHtmlToPdfNodes(schemeOfAssessment,registerSection),
-    },
-    {
-      title: "General administration",
-      content: renderHtmlToPdfNodes(generalAdministration,registerSection),
-    },
-    {
-      title: "Appendix",
-      content: renderHtmlToPdfNodes(appendix,registerSection),
-    }
+    // {
+    //   title: "Specification at a glance",
+    //   content: renderHtmlToPdfNodes(specAtAGlance,registerSection),
+    // },
+    // {
+    //   title: "Subject content",
+    //   content: renderHtmlToPdfNodes(subjectContent,registerSection),
+    // },
+    // {
+    //   title: "Scheme of assessment",
+    //   content: renderHtmlToPdfNodes(schemeOfAssessment,registerSection),
+    // },
+    // {
+    //   title: "General administration",
+    //   content: renderHtmlToPdfNodes(generalAdministration,registerSection),
+    // },
+    // {
+    //   title: "Appendix",
+    //   content: renderHtmlToPdfNodes(appendix,registerSection),
+    // }
   ];
 
   return (

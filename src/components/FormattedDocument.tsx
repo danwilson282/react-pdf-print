@@ -24,12 +24,6 @@ const FormattedDocument: React.FC<Props> = ({ sections, tocMap, registerSection,
        logo={frontCover.logo}
        headingContainer={frontCover.headingContainer}
     />
-    {/* <Page size="A4" style={globalStyles.page}>
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={nodeStyles.heading1}>My Report Title</Text>
-        <Text style={nodeStyles.heading2}>Subtitle / Author</Text>
-      </View>
-    </Page> */}
     {/* Blank page */}
     <Page size="A4" style={globalStyles.page}></Page>
     {/* Table of contents */}

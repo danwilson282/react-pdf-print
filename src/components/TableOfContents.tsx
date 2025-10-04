@@ -17,7 +17,7 @@ export const TableOfContents: React.FC<Props> = ({ tocMap }) => {
   return (
     <Page size="A4" style={globalStyles.page}>
       <Text style={globalStyles.heading}>Contents</Text>
-      <Text>{JSON.stringify(tocMap,null,2)}</Text>
+      <Text></Text>
       <View>
       {[...tocMap]
         .sort((a, b) => {
