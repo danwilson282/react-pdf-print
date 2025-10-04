@@ -1,15 +1,18 @@
 import React, { useState, useRef } from "react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import FormattedDocument from "./components/FormattedDocument";
-import { Text, } from "@react-pdf/renderer";
 // import HtmlNodeExample, {htmlExample} from "./components/Example";
 import { renderHtmlToPdfNodes } from "./components/HtmlParser";
 import OpenPdfInBrowserButton from "./components/OpenPdfInBrowser";
-import { MathJax } from "./components/MathJax";
-import { intro } from "./AQA/Maths/Intro";
-import { specAtAGlance } from "./AQA/Maths/specAtAGlance";
-import backgroundImage from "./AQA/background.png";
-import logo from "./AQA/logo.png";
+// import { MathJax } from "./components/MathJax";
+import { intro } from "./AQA/Maths/Introduction";
+import { specAtAGlance } from "./AQA/Maths/specificationAtAGlance";
+import { subjectContent } from "./AQA/Maths/subjectContent";
+import { schemeOfAssessment } from "./AQA/Maths/schemeOfAssessment";
+import { generalAdministration } from "./AQA/Maths/generalAdministration";
+import { appendix } from "./AQA/Maths/appendix";
+import backgroundImage from "./AQA/SampleBackground.png";
+import logo from "./AQA/AQAlogo.png";
 import { FrontCoverProps } from "./components/Cover";
 export type sectionType = { title: string; content: string | React.ReactNode};
 export type registerSectionType = (title: string, pageNumber: number, id: number, type: string) => void;
@@ -17,18 +20,18 @@ export type registerSectionType = (title: string, pageNumber: number, id: number
 export type tocEntry = { id: number; title: string; pageNumber: number, type: string };
 export type tocType = tocEntry[];
 
-const mathML = `
-  <math xmlns="http://www.w3.org/1998/Math/MathML">
-    <mrow>
-      <mi>y</mi>
-      <mo>=</mo>
-      <mfrac>
-        <mn>1</mn>
-        <mi>x</mi>
-      </mfrac>
-    </mrow>
-  </math>
-`;
+// const mathML = `
+//   <math xmlns="http://www.w3.org/1998/Math/MathML">
+//     <mrow>
+//       <mi>y</mi>
+//       <mo>=</mo>
+//       <mfrac>
+//         <mn>1</mn>
+//         <mi>x</mi>
+//       </mfrac>
+//     </mrow>
+//   </math>
+// `;
 
 
 
@@ -73,20 +76,21 @@ const App: React.FC = () => {
       content: renderHtmlToPdfNodes(specAtAGlance,registerSection),
     },
     {
-      title: "Pagignation Test",
-      content:           
-      <Text>
-        {Array(200)
-          .fill("This is some content that will flow across pages. ")
-          .join("")}
-      </Text>,
+      title: "Subject content",
+      content: renderHtmlToPdfNodes(subjectContent,registerSection),
     },
     {
-      title: "MathJax",
-      content: <MathJax content={mathML} />
-  
+      title: "Scheme of assessment",
+      content: renderHtmlToPdfNodes(schemeOfAssessment,registerSection),
     },
-    { title: "Conclusion", content: "Closing notes." },
+    {
+      title: "General administration",
+      content: renderHtmlToPdfNodes(generalAdministration,registerSection),
+    },
+    {
+      title: "Appendix",
+      content: renderHtmlToPdfNodes(appendix,registerSection),
+    }
   ];
 
   return (
