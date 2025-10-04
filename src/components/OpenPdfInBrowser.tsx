@@ -1,5 +1,5 @@
 import React from 'react';
-import { pdf, Document, DocumentProps } from '@react-pdf/renderer';
+import { pdf, DocumentProps } from '@react-pdf/renderer';
 
 interface OpenPdfInBrowserButtonProps {
   document: React.ReactElement<DocumentProps>;

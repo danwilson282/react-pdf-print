@@ -27,7 +27,8 @@ export const nodeStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#000',
     borderBottomStyle: 'solid',
-    marginVertical: 10},
+    marginVertical: 10
+  },
 
     table: {
       width: "100%",

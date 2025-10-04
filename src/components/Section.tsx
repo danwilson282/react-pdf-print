@@ -2,7 +2,7 @@ import React from "react";
 import { Page, Text, View } from "@react-pdf/renderer";
 import type { registerSectionType } from "../App";
 import { globalStyles } from "../styles/globalStyle";
-import { nodeStyles } from "../styles/nodeStyle";
+
 type Props = {
   title: string;
   content: string | React.ReactNode;

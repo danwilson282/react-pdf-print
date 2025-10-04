@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react';
 import {
-  Document,
-  Page,
   Svg,
   Path,
   View,

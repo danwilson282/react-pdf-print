@@ -1,11 +1,12 @@
 import React from "react";
-import { Page, Text, View, Document } from "@react-pdf/renderer";
+import { Page, Document } from "@react-pdf/renderer";
 import Section from "./Section";
 import type { registerSectionType, sectionType,tocType } from "../App";
 import { globalStyles } from "../styles/globalStyle";
-import { nodeStyles } from "../styles/nodeStyle";
 import { TableOfContents } from "./TableOfContents";
+import { Cover, FrontCoverProps } from "./Cover";
 type Props = {
+  frontCover: FrontCoverProps;
   sections: sectionType[];
   tocMap: tocType;
   registerSection: registerSectionType;
@@ -13,19 +14,25 @@ type Props = {
   footerText?: string;
 }
 
-const FormattedDocument: React.FC<Props> = ({ sections, tocMap, registerSection, headerText, footerText }) => {
+const FormattedDocument: React.FC<Props> = ({ sections, tocMap, registerSection, headerText, footerText, frontCover }) => {
 
   return (
   <Document>
     {/* COVER */}
-    <Page size="A4" style={globalStyles.page}>
+    <Cover
+       coverImage={frontCover.coverImage}
+       logo={frontCover.logo}
+       headingContainer={frontCover.headingContainer}
+    />
+    {/* <Page size="A4" style={globalStyles.page}>
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text style={nodeStyles.heading1}>My Report Title</Text>
         <Text style={nodeStyles.heading2}>Subtitle / Author</Text>
       </View>
-    </Page>
-
-    {/* TOC */}
+    </Page> */}
+    {/* Blank page */}
+    <Page size="A4" style={globalStyles.page}></Page>
+    {/* Table of contents */}
     <TableOfContents tocMap={tocMap} />
 
     {/* SECTIONS */}
