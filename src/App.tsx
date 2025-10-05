@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import { PDFDownloadLink, BlobProvider } from "@react-pdf/renderer";
 import FormattedDocument from "./components/FormattedDocument";
 // import HtmlNodeExample, {htmlExample} from "./components/Example";
 import { renderHtmlToPdfNodes } from "./components/HtmlParser";
@@ -40,25 +40,29 @@ export type tocType = tocEntry[];
 const App: React.FC = () => {
   const [tocMap, setTocMap] = useState<tocType>([]);
   const tempMap = useRef<tocType>([]);
+  const [ready, setReady] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const registerSection: registerSectionType = React.useCallback((title, pageNumber, id, type) => {
+    if (!ready){
+      const existingIndex = tempMap.current.findIndex(entry => entry.id === id);
   
-  const registerSection: registerSectionType = (title, pageNumber, id, type) => {
-    const existingIndex = tempMap.current.findIndex(entry => entry.id === id);
-  
-    const newEntry = { id, title, pageNumber, type };
-  
-    if (existingIndex !== -1) {
-      // ✅ Overwrite existing entry
-      tempMap.current[existingIndex] = newEntry;
-    } else {
-      // ✅ Add new entry
-      tempMap.current.push(newEntry);
+      const newEntry = { id, title, pageNumber, type };
+    
+      if (existingIndex !== -1) {
+        // ✅ Overwrite existing entry
+        tempMap.current[existingIndex] = newEntry;
+      } else {
+        // ✅ Add new entry
+        tempMap.current.push(newEntry);
+      }
+    
+      // Sort updated TOC and update state
+      const sortedToc = [...tempMap.current].sort((a, b) => a.id - b.id);
+      setTocMap(sortedToc);
     }
-  
-    // Sort updated TOC and update state
-    const sortedToc = [...tempMap.current].sort((a, b) => a.id - b.id);
-    setTocMap(sortedToc);
-  };
-  const cover: FrontCoverProps = {
+
+  },[tocMap]);
+  const cover: FrontCoverProps = React.useMemo(()=>({
     coverImage: backgroundImage,
     logo: logo,
     headingContainer: {
@@ -70,8 +74,8 @@ const App: React.FC = () => {
       description2: "For exams in May/June 2017 onwards",
       subText: "Version 1.0 12 September 2014"
     }
-  }
-  const sections: sectionType[] = [
+  }),[])
+  const sections: sectionType[] = React.useMemo(()=>([
     {
       title: "Introduction",
       content: renderHtmlToPdfNodes(intro,registerSection),
@@ -80,10 +84,10 @@ const App: React.FC = () => {
       title: "Specification at a glance",
       content: renderHtmlToPdfNodes(specAtAGlance,registerSection),
     },
-    {
-      title: "Subject content",
-      content: renderHtmlToPdfNodes(subjectContent,registerSection),
-    },
+    // {
+    //   title: "Subject content",
+    //   content: renderHtmlToPdfNodes(subjectContent,registerSection),
+    // },
     {
       title: "Scheme of assessment",
       content: renderHtmlToPdfNodes(schemeOfAssessment,registerSection),
@@ -96,40 +100,40 @@ const App: React.FC = () => {
       title: "Appendix",
       content: renderHtmlToPdfNodes(appendix,registerSection),
     }
-  ];
+  ]),[tocMap]);
+
+  const memoizedDocument = React.useMemo(() => (
+    <FormattedDocument
+      frontCover={cover}
+      sections={sections}
+      tocMap={tocMap}
+      registerSection={registerSection}
+      headerText="GCSE Mathematics (8300). For exams in May/June 2017 onwards. Version 1.0"
+      footerText="Visit aqa.org.uk/8300 for the most up-to-date specifications, resources, support and administration"
+    />
+  ), [cover, sections, tocMap]); 
+
 
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>React PDF with TOC</h1>
-      <PDFDownloadLink
-        document={
-          <FormattedDocument
-            frontCover={cover}
-            sections={sections}
-            tocMap={tocMap}
-            registerSection={registerSection}
-            headerText={"GCSE Mathematics (8300). For exams in May/June 2017 onwards. Version 1.0"}
-            footerText={"Visit aqa.org.uk/8300 for the most up-to-date specifications, resources, support and administration"}
-          />
-        }
-        fileName="report.pdf"
-      >
-        {({ loading }) => (<span>{loading ? "Generating PDF..." : "Download PDF"}</span>)}
-      </PDFDownloadLink>
-      <OpenPdfInBrowserButton
-        document={
-          <FormattedDocument
-            frontCover={cover}
-            sections={sections}
-            tocMap={tocMap}
-            registerSection={registerSection}
-            headerText={"GCSE Mathematics (8300). For exams in May/June 2017 onwards. Version 1.0"}
-            footerText={"Visit aqa.org.uk/8300 for the most up-to-date specifications, resources, support and administration"}
-          />
-        }
-        buttonText="Open PDF in Browser"
-      />
 
+      <BlobProvider document={memoizedDocument}>
+        {({ blob, url, loading, error }) => {
+          if (loading) return <span>Generating PDF...</span>;
+          if (error) return <span>Error: {error.message}</span>;
+          if (url) {
+            setReady(true)
+            return (
+              <a href={url} target="_blank" rel="noopener noreferrer">
+                Download PDF
+              </a>
+            );
+          }
+          
+          return null;
+        }}
+      </BlobProvider>
     </div>
   );
 };
