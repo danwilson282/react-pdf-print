@@ -3,7 +3,6 @@ import { BlobProvider } from "@react-pdf/renderer";
 import FormattedDocument from "../components/FormattedDocument";
 import { renderHtmlToPdfNodes } from "../components/HtmlParser";
 import { FrontCoverProps } from "../components/Cover";
-import generateSha1 from "../helpers/generateSha1";
 export type sectionType = { title: string; content: string | React.ReactNode};
 export type registerSectionType = (title: string, pageNumber: number, id: number, type: string) => void;
 
@@ -43,7 +42,7 @@ export type DocumentMeta = {
   filename?: string;
   showContentsPage?: boolean;
 }
-type Section = {
+export type Section = {
     title: string;
     content: string;
 }
@@ -51,9 +50,10 @@ type Section = {
 type Props = {
     meta: DocumentMeta;
     sections: Section[]
+    setBlob?: (blob: Blob | null) => void;
 }
 
-const RenderPdf: React.FC<Props> = ({meta, sections}) => {
+const RenderPdf: React.FC<Props> = ({meta, sections, setBlob}) => {
   const [tocMap, setTocMap] = useState<tocType>([]);
   const tempMap = useRef<tocType>([]);
   const [ready, setReady] = useState(false);
@@ -96,7 +96,6 @@ const RenderPdf: React.FC<Props> = ({meta, sections}) => {
     />
   ), [meta, sections, tocMap, registerSection]); 
   
-  const sha1 = generateSha1([...sections.map(section=>section.content?.toString()), meta.toString()]);
   return (
       <BlobProvider document={memoizedDocument}>
         {({ blob, url, loading, error }) => {
@@ -104,6 +103,9 @@ const RenderPdf: React.FC<Props> = ({meta, sections}) => {
           if (error) return <span>Error: {error.message}</span>;
           if (url) {
             setReady(true)
+            if (blob && setBlob){
+              setBlob(blob);
+            }
             return (
               <a href={url} target="_blank" rel="noopener noreferrer">
                 Download PDF

@@ -1,7 +1,5 @@
-import React, { useMemo } from "react";
+import React from "react";
 
-import { renderHtmlToPdfNodes } from "./components/HtmlParser";
-// import { MathJax } from "./components/MathJax";
 import { intro } from "./AQA/Maths/Introduction";
 import { specAtAGlance } from "./AQA/Maths/specificationAtAGlance";
 // import { subjectContent } from "./AQA/Maths/subjectContent";
@@ -12,6 +10,14 @@ import backgroundImage from "./AQA/SampleBackground.png";
 import logo from "./AQA/AQAlogo.png";
 
 import RenderPdf, { DocumentMeta } from "./components/RenderPdf";
+import ServePdf from "./components/ServePdf";
+
+
+import { renderMathMLToSVG } from "./helpers/mathjaxToSvg";
+import { parseSvgToPrimitives } from "./helpers/parseSvgToPrimitives";
+const Math = `
+<math><msup><mrow><mi mathvariant="italic">a</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup><mo mathvariant="sans-serif">+</mo><msup><mrow><mi mathvariant="italic">b</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup><mo mathvariant="sans-serif">=</mo><msup><mrow><mi mathvariant="italic">c</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup></math>
+`
 
 const App: React.FC = () => {
 
@@ -35,11 +41,14 @@ const App: React.FC = () => {
     }
 
   }
+  const svg = renderMathMLToSVG(Math);
+  // const prim = parseSvgToPrimitives(svg);
 
+  console.log(svg)
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>React PDF with TOC</h1>
-      <RenderPdf
+      <ServePdf
       sections={[
         { title: "Introduction", content: intro },
         { title: "Specification at a glance", content: specAtAGlance },
@@ -49,7 +58,7 @@ const App: React.FC = () => {
       //  { title: "Subject content", content: subjectContent },
     ]}
       meta={documentMetadata}
-      ></RenderPdf>
+      ></ServePdf>
     </div>
   );
 };
