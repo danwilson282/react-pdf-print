@@ -12,6 +12,7 @@
     "@types/node": "^16.18.126",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "crypto-js": "^4.2.0",
     "dom-to-image-more": "^3.7.1",
     "htmlparser2": "^10.0.0",
     "katex": "^0.16.22",
@@ -51,6 +52,7 @@
     ]
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/katex": "^0.16.7",
     "@types/xmldom": "^0.1.34"
   }

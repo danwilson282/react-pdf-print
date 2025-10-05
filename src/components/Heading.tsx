@@ -1,7 +1,7 @@
 // Heading.tsx
 import React from 'react';
 import { Text } from '@react-pdf/renderer';
-import { registerSectionType } from '../App';
+import { registerSectionType } from './RenderPdf';
 import { extractTextFromReactNode } from './HtmlParser';
 
 type Props = {

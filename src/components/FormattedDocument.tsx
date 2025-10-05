@@ -1,7 +1,7 @@
 import React from "react";
 import { Page, Document } from "@react-pdf/renderer";
 import Section from "./Section";
-import type { registerSectionType, sectionType,tocType } from "../App";
+import type { registerSectionType, sectionType,tocType } from "../components/RenderPdf";
 import { globalStyles } from "../styles/globalStyle";
 import { TableOfContents } from "./TableOfContents";
 import { Cover, FrontCoverProps } from "./Cover";

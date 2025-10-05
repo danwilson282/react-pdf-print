@@ -3,7 +3,7 @@ import React from "react";
 import { parseDocument } from "htmlparser2";
 import { View, Text, Image, Link } from "@react-pdf/renderer";
 import { nodeStyles } from "../styles/nodeStyle";
-import { registerSectionType } from "../App";
+import { registerSectionType } from "./RenderPdf";
 import Heading from "./Heading";
 
 export function extractTextFromReactNode(node: React.ReactNode): string {

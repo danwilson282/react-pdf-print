@@ -1,6 +1,6 @@
 import { Page, Text, View } from "@react-pdf/renderer";
 import { globalStyles } from "../styles/globalStyle";
-import { tocType } from "../App";
+import { tocType } from "./RenderPdf";
 
 type Props = {
   tocMap: tocType

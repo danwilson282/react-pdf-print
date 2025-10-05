@@ -1,6 +1,6 @@
 import React from "react";
 import { Page, Text, View } from "@react-pdf/renderer";
-import type { registerSectionType } from "../App";
+import type { registerSectionType } from "./RenderPdf";
 import { globalStyles } from "../styles/globalStyle";
 
 type Props = {
