@@ -20,13 +20,21 @@ export const TableOfContents: React.FC<Props> = ({ tocMap }) => {
       <Text></Text>
       <View>
       {[...tocMap]
-        .sort((a, b) => {
-          const aParsed = parseType(a.type);
-          const bParsed = parseType(b.type);
-          if (aParsed.num1 !== bParsed.num1) return aParsed.num1 - bParsed.num1;
-          if (aParsed.num2 !== bParsed.num2) return aParsed.num2 - bParsed.num2;
-          return aParsed.letter.localeCompare(bParsed.letter);
-        })
+          .sort((a, b) => {
+            const aParsed = parseType(a.type);
+            const bParsed = parseType(b.type);
+
+            if (aParsed.num1 !== bParsed.num1) {
+              return aParsed.num1 - bParsed.num1;
+            }
+
+            const letterCompare = aParsed.letter.localeCompare(bParsed.letter);
+            if (letterCompare !== 0) {
+              return letterCompare;
+            }
+
+            return aParsed.num2 - bParsed.num2;
+          })
         .map((contentItem, i) => {
           const sectionType = parseType(contentItem.type).letter;
           const sectionStyle = () => {
