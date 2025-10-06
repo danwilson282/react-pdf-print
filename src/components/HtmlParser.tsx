@@ -1,7 +1,8 @@
 // htmlToPdf.tsx
 import React from "react";
 import { parseDocument } from "htmlparser2";
-import { View, Text, Image, Link } from "@react-pdf/renderer";
+import { default as serialize } from 'dom-serializer';
+import { View, Text, Image as PDFImage, Link } from "@react-pdf/renderer";
 import { nodeStyles } from "../styles/nodeStyle";
 import { registerSectionType } from "./RenderPdf";
 import Heading from "./Heading";
@@ -26,9 +27,27 @@ export function extractTextFromReactNode(node: React.ReactNode): string {
 }
 
 /** Convert Blob to object URL (used as image src) */
-async function blobToObjectUrl(blob: Blob): Promise<string> {
-  return URL.createObjectURL(blob);
+
+async function blobToObjectUrl(blob: Blob): Promise<{ width: number; height: number; url: string }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+
+    img.onload = () => {
+      const { width, height } = img;
+      // Keep the URL if needed by caller — don't revoke here
+      resolve({ width, height, url });
+    };
+
+    img.onerror = (err) => {
+      URL.revokeObjectURL(url); // cleanup on error
+      reject(err);
+    };
+
+    img.src = url;
+  });
 }
+
 
 function stringToNumberHash(str: string): number {
   let hash = 0;
@@ -121,7 +140,7 @@ async function renderNode(
         const height = node.attribs?.height ? Number(node.attribs.height) : 20;
         if (!src) return null;
         return (
-          <Image key={keyPrefix} src={src} style={{ ...nodeStyles.inlineImage, width, height }} />
+          <PDFImage key={keyPrefix} src={src} style={{ ...nodeStyles.inlineImage, width, height }} />
         );
       }
 
@@ -214,19 +233,14 @@ async function renderNode(
 
       case "math": {
         try {
-          const innerMathML = node.children?.map((c: any) => c.data || "").join("") ?? "";
-          const wrappedMathML = `<math xmlns="http://www.w3.org/1998/Math/MathML">${innerMathML}</math>`;
-          const Math = `
-<math><msup><mrow><mi mathvariant="italic">a</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup><mo mathvariant="sans-serif">+</mo><msup><mrow><mi mathvariant="italic">b</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup><mo mathvariant="sans-serif">=</mo><msup><mrow><mi mathvariant="italic">c</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup></math>
-`
-          const pngBlob = await renderMathMLToSVG(Math);
-          const dataUrl = await blobToObjectUrl(pngBlob as Blob);
-          
+          const innerMathML = serialize(node)
+          const pngBlob = await renderMathMLToSVG(innerMathML);
+          const pngData = await blobToObjectUrl(pngBlob as Blob);
           return (
-            <Image
+            <PDFImage
               key={keyPrefix}
-              src={dataUrl}
-              style={{ width: 48, height: 8, marginVertical: 4 }}
+              src={pngData.url}
+              style={{ width: pngData.width*0.6, height: pngData.height*0.6, marginVertical: 4 }}
             />
           );
         } catch (e) {
