@@ -5,6 +5,7 @@ import { View, Text, Image, Link } from "@react-pdf/renderer";
 import { nodeStyles } from "../styles/nodeStyle";
 import { registerSectionType } from "./RenderPdf";
 import Heading from "./Heading";
+import { renderMathMLToSVG } from "../helpers/mathjaxToSvg";
 
 export function extractTextFromReactNode(node: React.ReactNode): string {
   if (typeof node === "string" || typeof node === "number") {
@@ -24,201 +25,216 @@ export function extractTextFromReactNode(node: React.ReactNode): string {
   return "";
 }
 
+/** Convert Blob to object URL (used as image src) */
+async function blobToObjectUrl(blob: Blob): Promise<string> {
+  return URL.createObjectURL(blob);
+}
+
 function stringToNumberHash(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash |= 0; // Convert to 32-bit integer
+    hash |= 0;
   }
   return Math.abs(hash);
 }
 
-/** Map DOM node -> React-PDF nodes */
-function renderNode(node: any, keyPrefix = "", registerSection: registerSectionType): React.ReactNode | null {
+/** Recursively render DOM nodes into React-PDF components */
+async function renderNode(
+  node: any,
+  keyPrefix = "",
+  registerSection: registerSectionType
+): Promise<React.ReactNode | null> {
   if (!node) return null;
-  // Handle text nodes
+
   if (node.type === "text") {
     const txt = (node.data || "").replace(/\s+/g, " ");
     if (!txt.trim()) return null;
     return <Text key={keyPrefix}>{txt}</Text>;
   }
 
-  // Handle element nodes
   if (node.type === "tag") {
     const tag = node.name.toLowerCase();
-    const children = (node.children || [])
-      .map((c: any, i: number) => renderNode(c, `${keyPrefix}_${tag}_${i}`,registerSection))
-      .filter(Boolean) as React.ReactNode[];
+
+    const childNodes = await Promise.all(
+      (node.children || []).map((c: any, i: number) =>
+        renderNode(c, `${keyPrefix}_${tag}_${i}`, registerSection)
+      )
+    );
+    const children = childNodes.filter(Boolean);
+
     let subId: string | undefined, uniqueId: string;
+
     switch (tag) {
-      
       case "a":
-        const src = node.attribs.href || "";
         return (
-          <Link src={src} style={nodeStyles.link}>
+          <Link key={keyPrefix} src={node.attribs.href || ""} style={nodeStyles.link}>
             {children}
           </Link>
-        )
+        );
+
       case "h1":
-        return (
-          <Text key={keyPrefix} style={nodeStyles.heading1}>
-            {children}
-          </Text>
-        );
+        return <Text key={keyPrefix} style={nodeStyles.heading1}>{children}</Text>;
       case "h2":
-        return (
-          <Text key={keyPrefix} style={nodeStyles.heading2}>
-            {children}
-          </Text>
-        );
+        return <Text key={keyPrefix} style={nodeStyles.heading2}>{children}</Text>;
+
       case "h3":
-        subId = keyPrefix.split('_').pop()
+        subId = keyPrefix.split("_").pop();
         uniqueId = `${keyPrefix}_h3`;
         return (
           <Heading
-          key={keyPrefix}
-          level={"b"}
-          registerSection={registerSection}
-          id={stringToNumberHash(uniqueId)}
-          style={nodeStyles.heading3}
-          subId={subId}
-        >
-          {children}
-        </Heading>
-
+            key={keyPrefix}
+            level="b"
+            registerSection={registerSection}
+            id={stringToNumberHash(uniqueId)}
+            subId={subId}
+            style={nodeStyles.heading3}
+          >
+            {children}
+          </Heading>
         );
+
       case "h4":
-        subId = keyPrefix.split('_').pop()
+        subId = keyPrefix.split("_").pop();
         uniqueId = `${keyPrefix}_h4`;
         return (
           <Text
-          key={keyPrefix}
-          render={({ pageNumber }) => {
-            // registerSection(textContent, pageNumber, stringToNumberHash(uniqueId), `${pageNumber}_${subId}_c`);
-            return children;
-          }}
-          style={nodeStyles.heading4}
-        />
-
+            key={keyPrefix}
+            render={({ pageNumber }) => children}
+            style={nodeStyles.heading4}
+          />
         );
+
       case "strong":
       case "b":
-        return (
-          <Text key={keyPrefix} style={nodeStyles.strong}>
-            {children}
-          </Text>
-        );
+        return <Text key={keyPrefix} style={nodeStyles.strong}>{children}</Text>;
       case "em":
       case "i":
-        return (
-          <Text key={keyPrefix} style={nodeStyles.em}>
-            {children}
-          </Text>
-        );
+        return <Text key={keyPrefix} style={nodeStyles.em}>{children}</Text>;
       case "u":
-        return (
-          <Text key={keyPrefix} style={nodeStyles.underline}>
-            {children}
-          </Text>
-        );
+        return <Text key={keyPrefix} style={nodeStyles.underline}>{children}</Text>;
+
       case "img": {
         const src = node.attribs?.src || "";
         const width = node.attribs?.width ? Number(node.attribs.width) : 20;
         const height = node.attribs?.height ? Number(node.attribs.height) : 20;
         if (!src) return null;
         return (
-          <Image
-            key={keyPrefix}
-            src={src}
-            style={{ ...nodeStyles.inlineImage, width, height }}
-          />
+          <Image key={keyPrefix} src={src} style={{ ...nodeStyles.inlineImage, width, height }} />
         );
       }
+
       case "ul":
       case "ol": {
         const isOrdered = tag === "ol";
-        const listItems = (node.children || [])
-          .filter((c: any) => c.type === "tag" && c.name === "li")
-          .map((li: any, idx: number) => {
-            const liChildren = (li.children || [])
-              .map((c: any, i: number) =>
-                renderNode(c, `${keyPrefix}_li_${idx}_${i}`,registerSection)
+        const listItems = await Promise.all(
+          (node.children || []).filter((c: any) => c.name === "li").map(async (li: any, idx: number) => {
+            const liChildren = await Promise.all(
+              (li.children || []).map((c: any, i: number) =>
+                renderNode(c, `${keyPrefix}_li_${idx}_${i}`, registerSection)
               )
-              .filter(Boolean);
+            );
             const bullet = isOrdered ? `${idx + 1}. ` : "• ";
             return (
               <View key={`${keyPrefix}_li_${idx}`} style={nodeStyles.listItem}>
                 <Text style={nodeStyles.listBullet}>{bullet}</Text>
-                <View style={{ flex: 1 }}>{liChildren}</View>
+                <View style={{ flex: 1 }}>{liChildren.filter(Boolean)}</View>
               </View>
             );
-          });
+          })
+        );
         return <View key={keyPrefix}>{listItems}</View>;
       }
+
       case "hr":
-        return  <View key={keyPrefix} style={nodeStyles.hr} />
-        case "table": {
-          const extractRows = (nodes: any[]): any[] => {
-            return nodes.flatMap((node) => {
-              if (node.type === "tag") {
-                if (node.name === "tr") {
-                  return [node];
-                }
-                if (["thead", "tbody", "tfoot"].includes(node.name)) {
-                  return extractRows(node.children || []);
-                }
+        return <View key={keyPrefix} style={nodeStyles.hr} />;
+
+      case "table": {
+        const extractRows = (nodes: any[]): any[] =>
+          nodes.flatMap((node) => {
+            if (node.type === "tag") {
+              if (node.name === "tr") return [node];
+              if (["thead", "tbody", "tfoot"].includes(node.name)) {
+                return extractRows(node.children || []);
               }
-              return [];
-            });
-          };
-        
-          const rows = extractRows(node.children || []);
-        
-          const colCount = Math.max(
-            ...rows.map(
-              (r: any) =>
-                (r.children || []).filter(
-                  (c: any) => c.type === "tag" && (c.name === "td" || c.name === "th")
-                ).length
-            )
-          );
-        
-          const colWidth = `${100 / Math.max(1, colCount)}%`;
-          
-          return (
-            <View key={keyPrefix} style={nodeStyles.table} wrap={false}>
-              {rows.map((tr: any, rIdx: number) => {
-                const cells = (tr.children || []).filter(
-                  (c: any) => c.type === "tag" && (c.name === "td" || c.name === "th")
+            }
+            return [];
+          });
+
+        const rows = extractRows(node.children || []);
+        const colCount = Math.max(
+          ...rows.map(
+            (r: any) =>
+              (r.children || []).filter(
+                (c: any) => c.type === "tag" && ["td", "th"].includes(c.name)
+              ).length
+          )
+        );
+        const colWidth = `${100 / Math.max(1, colCount)}%`;
+
+        return (
+          <View key={keyPrefix} style={nodeStyles.table} wrap={false}>
+            {await Promise.all(
+              rows.map(async (tr: any, rIdx: number) => {
+                const cells = tr.children.filter(
+                  (c: any) => c.type === "tag" && ["td", "th"].includes(c.name)
                 );
                 return (
                   <View key={`${keyPrefix}_tr_${rIdx}`} style={nodeStyles.tableRow}>
-                    {cells.map((cell: any, cIdx: number) => {
-                      const cellChildren = (cell.children || [])
-                        .map((c: any, i: number) =>
-                          renderNode(c, `${keyPrefix}_tr${rIdx}_c${cIdx}_${i}`,registerSection)
-                        )
-                        .filter(Boolean);
+                    {await Promise.all(
+                      cells.map(async (cell: any, cIdx: number) => {
+                        const cellChildren = await Promise.all(
+                          (cell.children || []).map((c: any, i: number) =>
+                            renderNode(c, `${keyPrefix}_tr${rIdx}_c${cIdx}_${i}`, registerSection)
+                          )
+                        );
                         const isHeader = cell.name === "th";
-                      return (
-                        <View
-                          key={`${keyPrefix}_c${cIdx}`}
-                          style={{ ...nodeStyles.tableCol,
-                            ...(isHeader ? nodeStyles.tableHeaderCol : nodeStyles.tableDataCol),
-                             width: colWidth }}
-                        >
-                          {cellChildren}
-                        </View>
-                      );
-                    })}
+                        return (
+                          <View
+                            key={`${keyPrefix}_c${cIdx}`}
+                            style={{
+                              ...nodeStyles.tableCol,
+                              ...(isHeader ? nodeStyles.tableHeaderCol : nodeStyles.tableDataCol),
+                              width: colWidth,
+                            }}
+                          >
+                            {cellChildren.filter(Boolean)}
+                          </View>
+                        );
+                      })
+                    )}
                   </View>
                 );
-              })}
-            </View>
+              })
+            )}
+          </View>
+        );
+      }
+
+      case "math": {
+        try {
+          const innerMathML = node.children?.map((c: any) => c.data || "").join("") ?? "";
+          const wrappedMathML = `<math xmlns="http://www.w3.org/1998/Math/MathML">${innerMathML}</math>`;
+          const Math = `
+<math><msup><mrow><mi mathvariant="italic">a</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup><mo mathvariant="sans-serif">+</mo><msup><mrow><mi mathvariant="italic">b</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup><mo mathvariant="sans-serif">=</mo><msup><mrow><mi mathvariant="italic">c</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup></math>
+`
+          const pngBlob = await renderMathMLToSVG(Math);
+          const dataUrl = await blobToObjectUrl(pngBlob as Blob);
+          
+          return (
+            <Image
+              key={keyPrefix}
+              src={dataUrl}
+              style={{ width: 48, height: 8, marginVertical: 4 }}
+            />
           );
+        } catch (e) {
+          console.error("MathML render error", e);
+          return <Text key={keyPrefix}>[Math error]</Text>;
         }
-        
+      }
+
       case "p":
       case "div": {
         const isInline = node.children.every((c: any) => {
@@ -227,27 +243,14 @@ function renderNode(node: any, keyPrefix = "", registerSection: registerSectionT
             (c.type === "tag" && ["a", "span", "strong", "b", "em", "i", "u"].includes(c.name))
           );
         });
-      
+        const containerStyle = nodeStyles.paragraph;
         if (isInline) {
-          // render inline div as Text
-          const inlineChildren = node.children
-            .map((c: any, i: number) => renderNode(c, `${keyPrefix}_inline_${i}`,registerSection))
-            .filter(Boolean);
-          return (
-            <Text key={keyPrefix} style={nodeStyles.paragraph}>
-              {inlineChildren}
-            </Text>
-          );
+          return <Text key={keyPrefix} style={containerStyle}>{children}</Text>;
         } else {
-          // render block div as View
-          return (
-            <View key={keyPrefix} style={nodeStyles.paragraph}>
-              {children}
-            </View>
-          );
+          return <View key={keyPrefix} style={containerStyle}>{children}</View>;
         }
       }
-      
+
       case "span":
       default:
         return <Text key={keyPrefix}>{children}</Text>;
@@ -257,9 +260,13 @@ function renderNode(node: any, keyPrefix = "", registerSection: registerSectionT
   return null;
 }
 
-export function renderHtmlToPdfNodes(html: string, registerSection: registerSectionType): React.ReactNode[] {
+export async function renderHtmlToPdfNodes(
+  html: string,
+  registerSection: registerSectionType
+): Promise<React.ReactNode[]> {
   const doc = parseDocument(html, { decodeEntities: true });
-  return (doc.children || [])
-    .map((n: any, i: number) => renderNode(n, `root_${i}`,registerSection))
-    .filter(Boolean) as React.ReactNode[];
+  const nodes = await Promise.all(
+    (doc.children || []).map((n: any, i: number) => renderNode(n, `root_${i}`, registerSection))
+  );
+  return nodes.filter(Boolean) as React.ReactNode[];
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { intro } from "./AQA/Maths/Introduction";
 import { specAtAGlance } from "./AQA/Maths/specificationAtAGlance";
@@ -14,13 +14,17 @@ import ServePdf from "./components/ServePdf";
 
 
 import { renderMathMLToSVG } from "./helpers/mathjaxToSvg";
-import { parseSvgToPrimitives } from "./helpers/parseSvgToPrimitives";
+
 const Math = `
 <math><msup><mrow><mi mathvariant="italic">a</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup><mo mathvariant="sans-serif">+</mo><msup><mrow><mi mathvariant="italic">b</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup><mo mathvariant="sans-serif">=</mo><msup><mrow><mi mathvariant="italic">c</mi></mrow><mrow><mn mathvariant="sans-serif">2</mn></mrow></msup></math>
 `
+const test = async () => {
+  const svg = await renderMathMLToSVG(Math);
 
+  return svg
+}
 const App: React.FC = () => {
-
+  const [pngUrl, setPngUrl] = useState<string | null>(null);
   const documentMetadata: DocumentMeta = {
     cover: {
       coverImage: backgroundImage,
@@ -41,13 +45,20 @@ const App: React.FC = () => {
     }
 
   }
-  const svg = renderMathMLToSVG(Math);
-  // const prim = parseSvgToPrimitives(svg);
-
-  console.log(svg)
+  useEffect(() => {
+    const run = async () => {
+      const pngBlob = await test(); // test() returns a Blob
+      if (pngBlob instanceof Blob) {
+        const objectUrl = URL.createObjectURL(pngBlob);
+        setPngUrl(objectUrl);
+      }
+    };
+    run();
+  }, []);
   return (
     <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
       <h1>React PDF with TOC</h1>
+      {pngUrl && <img src={pngUrl} alt="Uploaded PNG" />}
       <ServePdf
       sections={[
         { title: "Introduction", content: intro },
